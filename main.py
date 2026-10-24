@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
+
 if not TOKEN:
     raise RuntimeError("Token não definido no .env")
 
@@ -112,7 +113,7 @@ def build_ydl_opts() -> dict:
         "quiet": True,
         "keepvideo": False,
         "noplaylist": True,
-        "concurrent_fragment_downloads": 4,
+        "concurrent_fragment_downloads": 1,
         "http_chunk_size": 10485760,  # 10 MB
         "js_runtimes": {"deno": {}},
     }
@@ -233,6 +234,12 @@ async def process_and_send(
             typing_task.cancel()
         if mp3_filename and os.path.exists(mp3_filename):
             os.remove(mp3_filename)
+        if mp3_filename:
+            base, _ = os.path.splitext(mp3_filename)
+            for ext in (".webm", ".m4a", ".opus", ".part", ".ytdl"):
+                p = base + ext 
+                if os.path.exists(p):
+                    os.remove(p)
         if thumb_path and os.path.exists(thumb_path):
             os.remove(thumb_path)
 
